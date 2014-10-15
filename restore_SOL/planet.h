@@ -7,7 +7,6 @@ public:
 
     double position[3];
     double velocity[3];
-    double force[3];
     double mass;
 
     planet(double mas, double x,double y, double z, double vx, double vy, double vz);

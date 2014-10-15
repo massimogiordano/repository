@@ -24,8 +24,10 @@ int main()
     planet k( 6.41e23, 0, 2.2e1,0,0,24000,2);
     planet satellite(5.24e26, -1.5e11,0,0,0,30000,0);
     planet luna(7.3e2, 1.5e11, 3.84e5,0,-1000, 30000,0);
-    planet prova(1.98e30, 0, 0 ,0,0,0,0);
+    planet prova(1.98e30, 0, 0 ,0,0,-10,0);
     planet prova2(1.98e30, 1e11, 0 ,0,0,30000,0);
+    
+    
     //mysystem.add(sun);
     // mysystem.add(earth);
     //mysystem.add(marth);
@@ -34,8 +36,9 @@ int main()
     //mysystem.add(satellite);
     //mysystem.add(luna);
 
+    
     mysystem.add(prova);
-     mysystem.add(prova2);
+    mysystem.add(prova2);
 
     mysystem.print_position(mysystem.all_planets,3);
 
