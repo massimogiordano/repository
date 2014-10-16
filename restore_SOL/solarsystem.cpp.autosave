@@ -159,7 +159,7 @@ void solarsystem::solverVERLET(vector<planet> vec, double h, double tmax){
 
 
 
-        cout << sqrt(y_i(1,0)*y_i(1,0) + y_i(1,1)*y_i(1,1))<< "         ";
+cout << sqrt(y_i(1,0)*y_i(1,0) + y_i(1,1)*y_i(1,1))<< "         ";
 
 //cout << sqrt(y_i(1,0)*y_i(1,0) + y_i(1,1)*y_i(1,1)) << "  ";
 print_position(vec,2);

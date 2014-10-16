@@ -16,8 +16,12 @@ int main()
     solarsystem mysystem;
 
     //add a planet    Mass, x,y,z, vx,vy,vz;
-    planet sun(   1.98e30, 0, 0,     0,0,0,   0 );
-    planet earth( 5.24e24, 1.5e11, 0 ,0,0,30000,0);
+   planet sun(   1.98e30, 0, 0,     0,0,0,   0 );
+   planet earth( 5.24e24, 1.5e11, 0 ,0,0,30000,0);
+
+    //au
+  //  planet sun(   1, 0, 0, 0,0,0, 0 );
+  // planet earth( 1, 1, 0 ,0,0,0.1,0);
 
     planet marth( 6.41e23, 2.2e11 ,0,0,0,24000,0);
     planet giove(1.89e27,7.78e11, 0,0,0,13000,0);
@@ -47,11 +51,13 @@ int main()
     cout << "number of element" << elements<< endl;
     //vettore con tutti i pianeti, h , t_max
 
+
+
     if(RK4) {
-    mysystem.solverRK4(mysystem.all_planets, 500, 500 );
+    mysystem.solverRK4(mysystem.all_planets, 500, 6e7 );
     cout << "rudda";
    }else{
-    mysystem.solverVERLET(mysystem.all_planets, 500, 9e7 );
+    mysystem.solverVERLET(mysystem.all_planets, 5000, 9e7 );
     cout << "vertel";
     }
 
