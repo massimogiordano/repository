@@ -4,6 +4,8 @@
 #include <armadillo>
 using namespace arma;
 using namespace std;
+
+
 solarsystem::solarsystem()
 {
 }
@@ -21,9 +23,9 @@ void solarsystem::print_position(vector<planet> vec, int n){
         planet &questo = vec[i];
         std::cout << std::scientific;
         for(int j=0; j<n;j++){
-        std::cout << questo.position[j] << " ";
+        std::cout << questo.position[j] << "   ";
         }
-        std::cout << "    ";
+        std::cout << "       ";
        }
     std::cout << std::endl;
 }
@@ -37,11 +39,7 @@ void solarsystem::insert_data(vector<planet> vec, mat &ma){
             ma(i,k)=questo.position[k];
             ma(i,k+3)=questo.velocity[k];
         }
-
     }
-
-
-
 }
 
 void solarsystem::synctroniz(vector<planet> vec, mat &ma){
@@ -57,7 +55,7 @@ void solarsystem::synctroniz(vector<planet> vec, mat &ma){
 
 }
 
-void solarsystem::solver(vector<planet> vec, double h, double tmax){
+void solarsystem::solverRK4(vector<planet> vec, double h, double tmax){
 
     mat y_i(number_planets,7);
     mat y_i_temp(number_planets,7);
@@ -100,7 +98,7 @@ void solarsystem::solver(vector<planet> vec, double h, double tmax){
         }
 
 
-print_position(vec,2);
+print_position(vec,3);
 
 
  t+=h;
@@ -110,13 +108,66 @@ print_position(vec,2);
 
     }
 
+void solarsystem::solverVERLET(vector<planet> vec, double h, double tmax){
+
+    mat y_i(number_planets,7);
+    mat r_i_dt(number_planets,7);
+    mat a_dt(number_planets,7);
+    mat v_dt(number_planets,7);
+    mat v_dt_2(number_planets,7);
+    //mat a(number_planets,7);
+
+    insert_data(vec , y_i);
+
+    double t=0;
+
+    while(t<tmax){
+
+        derivate(y_i, a_dt, number_planets);
+
+        for(int j=0; j<number_planets; j++){
+
+             for(int i=0; i<3; i++){
+
+                 y_i(j,i) = y_i(j,i) + h*y_i(j,i+3) + 0.5*h*h*a_dt(j,i+3);
+
+                 v_dt_2(j,i+3) = y_i(j,i+3) + 0.5*h*a_dt(j,i+3);
+             }
+
+        }
+
+        derivate(y_i, a_dt, number_planets);
+
+        for(int j=0; j<number_planets; j++){
+
+             for(int i=3; i<6; i++){
+
+                 y_i(j,i) = v_dt_2(j,i) + 0.5*h*a_dt(j,i);
+
+             }
 
 
+             //aggiorno posizione  e velocità.
+             planet &questo = vec[j];
+             for(int i=0; i<3; i++){
+             questo.position[i] = y_i(j,i);
+             questo.velocity[i] = y_i(j,i+3);
+             }
+        }
+
+//cout << sqrt(y_i(1,0)*y_i(1,0) + y_i(1,1)*y_i(1,1)) << "  ";
+print_position(vec,2);
+
+
+ t+=h;
+}
+
+
+
+}
 
 
 //______________________ FUNZIONI PRESE DAL MAIN ______________________________
-
-
 void solarsystem::sum_matrix(mat &result, int coeff_one, mat &first,int coeff_two, mat &second, int n){
     for(int i=0; i<7; i++){
          for(int j=0; j<n; j++){

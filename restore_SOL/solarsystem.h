@@ -22,7 +22,9 @@ public:
     void print_position(vector<planet> vec, int n);
     void synctroniz(vector<planet> vec, arma::mat &ma);
     void insert_data(vector<planet> vec, arma::mat &ma);
-    void solver(vector<planet> vec, double h, double tmax);
+    void solverRK4(vector<planet> vec, double h, double tmax);
+
+    void solverVERLET(vector<planet> vec, double h, double tmax);
     //da main
 
     void sum_matrix(mat &result, int coeff_one, mat &first,int coeff_two, mat &second, int n);
