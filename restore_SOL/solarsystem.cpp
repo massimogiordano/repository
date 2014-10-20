@@ -2,6 +2,8 @@
 #include "planet.h"
 #include <iostream>
 #include <armadillo>
+#include <stdio.h>
+#include <iomanip>
 using namespace arma;
 using namespace std;
 
@@ -11,23 +13,29 @@ solarsystem::solarsystem()
 }
 void solarsystem::add(planet n){
      number_planets++;
-     all_planets.push_back(n);  //questa funzione inserisce un elementp nella push_bac
+     all_planets.push_back(n);
  }
-void solarsystem::print_position(vector<planet> vec){
-    print_position(vec, 3);
+void solarsystem::print_position(ofstream &output, ofstream &output2, vector<planet> vec){
+    print_position(output, output2, vec, 3);
 }
 
-void solarsystem::print_position(vector<planet> vec, int n){
+void solarsystem::print_position(ofstream &output, ofstream &output2, vector<planet> vec, int n){
     if(n>3 || n<=0) n=3;
     for(int i=0; i<vec.size(); i++){
         planet &questo = vec[i];
         std::cout << std::scientific;
         for(int j=0; j<n;j++){
         std::cout << questo.position[j] << "   ";
+        output << std::scientific << questo.position[j] << "   ";
+        output2 << std::scientific << questo.velocity[j] << "   ";
         }
-        std::cout << "       ";
+        std::cout << "         ";
+        output  << "         ";
+        output2  << "         ";
        }
     std::cout << std::endl;
+    output << endl;
+    output2 << endl;
 }
 
 void solarsystem::insert_data(vector<planet> vec, mat &ma){
@@ -65,7 +73,21 @@ void solarsystem::solverRK4(vector<planet> vec, double h, double tmax){
     mat k4(number_planets,7);
 
     insert_data(vec , y_i);
-    double t=0;
+    double t=0, zz=1.;
+
+    //for print file_________
+    char *filename = new char[1000];
+    char *filename2 = new char[1000];
+        sprintf(filename, "Planet_position_RK4_%f.dat", h);
+        sprintf(filename2, "Planet_velocity_RK4_%f.dat", h);
+
+        ofstream output (filename);
+        ofstream output2 (filename2);
+
+        if (output.is_open()){
+            output.precision(5);
+            output2.precision(5);
+    //______________________
 
     while(t<tmax){
 
@@ -82,33 +104,30 @@ void solarsystem::solverRK4(vector<planet> vec, double h, double tmax){
 
         derivate( y_i_temp,  k4, number_planets);
 
-        for(int j=0; j<number_planets; j++){
+        for(int j=1; j<number_planets; j++){
 
              for(int i=0; i<6; i++){
                  y_i(j,i) = y_i(j,i) + h*(k1(j,i) + 2*k2(j,i) + 2*k3(j,i) + k4(j,i))/6;
              }
 
-             //aggiorno posizione  e velocità.
+             //Syncroniz position and velocity with the classes
              planet &questo = vec[j];
              for(int i=0; i<3; i++){
              questo.position[i] = y_i(j,i);
              questo.velocity[i] = y_i(j,i+3);
              }
 
-
         }
 
+print_position(output, output2, vec, 3);
 
-cout << sqrt(y_i(1,0)*y_i(1,0) + y_i(1,1)*y_i(1,1))<< "         ";
-print_position(vec,3);
+t+=h;
 
-
- t+=h;
 }
 
-
-
-    }
+output.close();
+}
+}
 
 void solarsystem::solverVERLET(vector<planet> vec, double h, double tmax){
 
@@ -117,11 +136,25 @@ void solarsystem::solverVERLET(vector<planet> vec, double h, double tmax){
     mat a_dt(number_planets,7);
     mat v_dt(number_planets,7);
     mat v_dt_2(number_planets,7);
-    //mat a(number_planets,7);
 
     insert_data(vec , y_i);
 
-    double t=0;
+    double t=0,zz =1;
+
+    //print file___________________
+    char *filename = new char[1000];
+    char *filename2 = new char[1000];
+        sprintf(filename, "Planet_position_Verlet_%f.dat", h);
+        sprintf(filename2, "Planet_velocity_Verlet_%f.dat", h);
+
+            ofstream output (filename);
+            ofstream output2 (filename2);
+
+            if (output.is_open()){
+            output.precision(5);
+            output2.precision(5);
+    // end for print_______________
+
 
     while(t<tmax){
 
@@ -130,12 +163,9 @@ void solarsystem::solverVERLET(vector<planet> vec, double h, double tmax){
         for(int j=0; j<number_planets; j++){
 
              for(int i=0; i<3; i++){
-
                  y_i(j,i) = y_i(j,i) + h*y_i(j,i+3) + 0.5*h*h*a_dt(j,i+3);
-
                  v_dt_2(j,i+3) = y_i(j,i+3) + 0.5*h*a_dt(j,i+3);
              }
-
         }
 
         derivate(y_i, a_dt, number_planets);
@@ -148,8 +178,6 @@ void solarsystem::solverVERLET(vector<planet> vec, double h, double tmax){
 
              }
 
-
-             //aggiorno posizione  e velocità.
              planet &questo = vec[j];
              for(int i=0; i<3; i++){
              questo.position[i] = y_i(j,i);
@@ -158,27 +186,26 @@ void solarsystem::solverVERLET(vector<planet> vec, double h, double tmax){
         }
 
 
+print_position(output, output2, vec,3);
 
-        cout << sqrt(y_i(1,0)*y_i(1,0) + y_i(1,1)*y_i(1,1))<< "         ";
+t+=h;
 
-//cout << sqrt(y_i(1,0)*y_i(1,0) + y_i(1,1)*y_i(1,1)) << "  ";
-print_position(vec,2);
-
-
- t+=h;
 }
-
+output.close();
+}
 
 
 }
 
 
 //______________________ FUNZIONI PRESE DAL MAIN ______________________________
-void solarsystem::sum_matrix(mat &result, int coeff_one, mat &first,int coeff_two, mat &second, int n){
-    for(int i=0; i<7; i++){
-         for(int j=0; j<n; j++){
+void solarsystem::sum_matrix(mat &result, double coeff_one, mat &first,double coeff_two, mat &second, int n){
+    for(int j=0; j<n; j++){
+         for(int i=0; i<6; i++){
             result(j,i) = coeff_one*first(j,i) + coeff_two*second(j,i);
          }
+         result(j,6) = first(j,6);
+
     }
 }
 void solarsystem::printmat(mat &ma, int n){
@@ -190,7 +217,7 @@ void solarsystem::printmat(mat &ma, int n){
         } cout << endl;}
 }
 double solarsystem::force(double x, double y, double z, double Mothers){
-    double G=6.67e-11;
+    double G=  4*M_PI*M_PI;
     double force=0;
     double distance=0;
 
@@ -217,9 +244,9 @@ accelleration_y += mod_force*(dat(j,1)-dat(i,1));
 accelleration_z += mod_force*(dat(j,2)-dat(i,2));
 }
 }
-        de(i,3) = accelleration_x; //velx
-        de(i,4) = accelleration_y; //vely
-        de(i,5) = accelleration_z; //velz
+        de(i,3) = accelleration_x;
+        de(i,4) = accelleration_y;
+        de(i,5) = accelleration_z;
 
     }
 
