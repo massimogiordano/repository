@@ -73,7 +73,7 @@ void solarsystem::solverRK4(vector<planet> vec, double h, double tmax){
     mat k4(number_planets,7);
 
     insert_data(vec , y_i);
-    double t=0, zz=1.;
+    double t=0;
 
     //for print file_________
     char *filename = new char[1000];
